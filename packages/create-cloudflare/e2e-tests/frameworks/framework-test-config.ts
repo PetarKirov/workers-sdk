@@ -149,7 +149,7 @@ export default function getFrameworkTestConfig(pm: string) {
 				expectedText: "C3_TEST",
 			},
 			nodeCompat: false,
-			flags: ["--skipTailwind"],
+			flags: ["--skipTailwind", "--analogSFC=false"],
 		},
 		"angular:pages": {
 			argv: ["--platform", "pages"],
