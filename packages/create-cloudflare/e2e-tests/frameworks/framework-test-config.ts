@@ -128,7 +128,6 @@ export default function getFrameworkTestConfig(pm: string) {
 			],
 		},
 		analog: {
-			quarantine: true,
 			testCommitMessage: true,
 			timeout: LONG_TIMEOUT,
 			unsupportedOSs: ["win32"],
