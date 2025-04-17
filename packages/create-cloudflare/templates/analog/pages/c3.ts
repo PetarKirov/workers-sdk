@@ -7,7 +7,7 @@ import { runCommand } from "helpers/command";
 import { detectPackageManager } from "helpers/packageManagers";
 import { installPackages } from "helpers/packages";
 import * as recast from "recast";
-import type { TemplateConfig } from "../../src/templates";
+import type { TemplateConfig } from "../../../src/templates";
 import type { C3Context } from "types";
 
 const { npm } = detectPackageManager();
