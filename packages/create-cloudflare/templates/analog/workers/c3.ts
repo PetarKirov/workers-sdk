@@ -2,15 +2,17 @@ import { logRaw } from "@cloudflare/cli";
 import { brandColor, dim } from "@cloudflare/cli/colors";
 import { spinner } from "@cloudflare/cli/interactive";
 import { runFrameworkGenerator } from "frameworks/index";
-import { loadTemplateSnippets, transformFile } from "helpers/codemod";
+import { transformFile } from "helpers/codemod";
 import { runCommand } from "helpers/command";
+import { getLatestTypesEntrypoint } from "helpers/compatDate";
+import { readFile, writeFile } from "helpers/files";
 import { detectPackageManager } from "helpers/packageManagers";
 import { installPackages } from "helpers/packages";
 import * as recast from "recast";
 import type { TemplateConfig } from "../../../src/templates";
 import type { C3Context } from "types";
 
-const { npm } = detectPackageManager();
+const { npm, name: pm } = detectPackageManager();
 
 const generate = async (ctx: C3Context) => {
 	await runFrameworkGenerator(ctx, [ctx.project.name, "--template", "latest"]);
@@ -19,13 +21,21 @@ const generate = async (ctx: C3Context) => {
 };
 
 const configure = async (ctx: C3Context) => {
-	const packages = ["nx", "@nx/devkit"];
+	const packages = ["nitro-cloudflare-dev", "nitropack"];
+
+	// When using pnpm, explicitly add h3 package so the H3Event type declaration can be updated.
+	// Package managers other than pnpm will hoist the dependency, as will pnpm with `--shamefully-hoist`
+	if (pm === "pnpm") {
+		packages.push("h3");
+	}
 
 	await installPackages(packages, {
 		dev: true,
-		startText: `Installing additional dependencies: ${packages.join(", ")}`,
+		startText: "Installing nitro module `nitro-cloudflare-dev`",
+		doneText: `${brandColor("installed")} ${dim(`via \`${npm} install\``)}`,
 	});
 
+	// ...?
 	await runCommand([npm, "install"], {
 		silent: true,
 		cwd: ctx.project.path,
@@ -33,28 +43,39 @@ const configure = async (ctx: C3Context) => {
 		doneText: `${brandColor("installed")} ${dim(`via \`${npm} install\``)}`,
 	});
 
-	updateViteConfig(ctx);
+	updateViteConfig();
+	updateEnvTypes(ctx);
 };
 
-const updateViteConfig = (ctx: C3Context) => {
+const updateEnvTypes = (ctx: C3Context) => {
+	const filepath = "env.d.ts";
+
+	const s = spinner();
+	s.start(`Updating ${filepath}`);
+
+	let file = readFile(filepath);
+
+	let typesEntrypoint = `@cloudflare/workers-types`;
+	const latestEntrypoint = getLatestTypesEntrypoint(ctx);
+	if (latestEntrypoint) {
+		typesEntrypoint += `/${latestEntrypoint}`;
+	}
+
+	// Replace placeholder with actual types entrypoint
+	file = file.replace("WORKERS_TYPES_ENTRYPOINT", typesEntrypoint);
+	writeFile("env.d.ts", file);
+
+	s.stop(`${brandColor(`updated`)} ${dim(`\`${filepath}\``)}`);
+};
+
+const updateViteConfig = () => {
 	const b = recast.types.builders;
 	const s = spinner();
 
 	const configFile = "vite.config.ts";
 	s.start(`Updating \`${configFile}\``);
 
-	const snippets = loadTemplateSnippets(ctx);
-
 	transformFile(configFile, {
-		visitProgram(n) {
-			const lastImportIndex = n.node.body.findLastIndex(
-				(t) => t.type === "ImportDeclaration",
-			);
-			const lastImport = n.get("body", lastImportIndex);
-			lastImport.insertAfter(...snippets.devBindingsModuleTs);
-
-			return this.traverse(n);
-		},
 		visitCallExpression(n) {
 			const callee = n.node.callee as recast.types.namedTypes.Identifier;
 			if (callee.name === "analog") {
@@ -63,11 +84,24 @@ const updateViteConfig = (ctx: C3Context) => {
 					b.objectExpression([
 						b.objectProperty(
 							b.identifier("preset"),
-							b.stringLiteral("cloudflare-pages"),
+							b.stringLiteral("cloudflare_module"),
 						),
 						b.objectProperty(
 							b.identifier("modules"),
-							b.arrayExpression([b.identifier("devBindingsModule")]),
+							b.arrayExpression([b.stringLiteral("nitro-cloudflare-dev")]),
+						),
+						b.objectProperty(
+							b.identifier("cloudflare"),
+							b.objectExpression([
+								b.objectProperty(
+									b.identifier("deployConfig"),
+									b.booleanLiteral(true),
+								),
+								b.objectProperty(
+									b.identifier("nodeCompat"),
+									b.booleanLiteral(true),
+								),
+							]),
 						),
 					]),
 				);
@@ -86,18 +120,18 @@ const config: TemplateConfig = {
 	configVersion: 1,
 	id: "analog",
 	frameworkCli: "create-analog",
-	platform: "pages",
+	platform: "workers",
 	displayName: "Analog",
 	copyFiles: {
 		path: "./templates",
 	},
-	path: "templates/analog/pages",
+	path: "templates/analog/workers",
 	generate,
 	configure,
 	transformPackageJson: async () => ({
 		scripts: {
-			preview: `${npm} run build && wrangler pages dev`,
-			deploy: `${npm} run build && wrangler pages deploy`,
+			preview: `${npm} run build && wrangler dev`,
+			deploy: `${npm} run build && wrangler deploy`,
 			"cf-typegen": `wrangler types`,
 		},
 	}),
