@@ -3,13 +3,14 @@ import { brandColor, dim } from "@cloudflare/cli/colors";
 import { spinner } from "@cloudflare/cli/interactive";
 import { runFrameworkGenerator } from "frameworks/index";
 import { loadTemplateSnippets, transformFile } from "helpers/codemod";
+import { runCommand } from "helpers/command";
 import { detectPackageManager } from "helpers/packageManagers";
 import { installPackages } from "helpers/packages";
 import * as recast from "recast";
 import type { TemplateConfig } from "../../src/templates";
 import type { C3Context } from "types";
 
-const { npm, name: pm } = detectPackageManager();
+const { npm } = detectPackageManager();
 
 const generate = async (ctx: C3Context) => {
 	await runFrameworkGenerator(ctx, [ctx.project.name, "--template", "latest"]);
@@ -18,14 +19,17 @@ const generate = async (ctx: C3Context) => {
 };
 
 const configure = async (ctx: C3Context) => {
-	const packages = [];
-	packages.push("nitropack");
-	packages.push("h3");
-	packages.push("@nx/devkit");
+	const packages = ["@nx/devkit"];
 
 	await installPackages(packages, {
 		dev: true,
 		startText: `Installing additional dependencies: ${packages.join(", ")}`,
+	});
+
+	await runCommand([npm, "install"], {
+		silent: true,
+		cwd: ctx.project.path,
+		startText: "Installing dependencies",
 		doneText: `${brandColor("installed")} ${dim(`via \`${npm} install\``)}`,
 	});
 
