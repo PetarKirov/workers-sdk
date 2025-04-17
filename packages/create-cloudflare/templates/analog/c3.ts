@@ -19,7 +19,7 @@ const generate = async (ctx: C3Context) => {
 };
 
 const configure = async (ctx: C3Context) => {
-	const packages = ["@nx/devkit"];
+	const packages = ["nx", "@nx/devkit"];
 
 	await installPackages(packages, {
 		dev: true,
