@@ -3,9 +3,6 @@ import { brandColor, dim } from "@cloudflare/cli/colors";
 import { spinner } from "@cloudflare/cli/interactive";
 import { runFrameworkGenerator } from "frameworks/index";
 import { transformFile } from "helpers/codemod";
-import { runCommand } from "helpers/command";
-import { getLatestTypesEntrypoint } from "helpers/compatDate";
-import { readFile, writeFile } from "helpers/files";
 import { detectPackageManager } from "helpers/packageManagers";
 import { installPackages } from "helpers/packages";
 import * as recast from "recast";
@@ -21,26 +18,19 @@ const generate = async (ctx: C3Context) => {
 };
 
 const configure = async (ctx: C3Context) => {
-	// const packages = ["nitro-cloudflare-dev", "nitropack"];
+	const packages = ["nitro-cloudflare-dev", "nitropack", "@nx/devkit"];
 
 	// When using pnpm, explicitly add h3 package so the H3Event type declaration can be updated.
 	// Package managers other than pnpm will hoist the dependency, as will pnpm with `--shamefully-hoist`
-	// if (pm === "pnpm") {
-	// 	packages.push("h3");
-	// }
+	if (pm === "pnpm") {
+		packages.push("h3");
+	}
 
-	// await installPackages(packages, {
-	// 	dev: true,
-	// 	startText: "Installing nitro module `nitro-cloudflare-dev`",
-	// 	doneText: `${brandColor("installed")} ${dim(`via \`${npm} install\``)}`,
-	// });
-
-	// await runCommand([npm, "install"], {
-	// 	// silent: true,
-	// 	cwd: ctx.project.path,
-	// 	startText: "Installing dependencies",
-	// 	doneText: `${brandColor("installed")} ${dim(`via \`${npm} install\``)}`,
-	// });
+	await installPackages(packages, {
+		dev: true,
+		startText: "Installing nitro module `nitro-cloudflare-dev`",
+		doneText: `${brandColor("installed")} ${dim(`via \`${npm} install\``)}`,
+	});
 
 	updateViteConfig();
 };
