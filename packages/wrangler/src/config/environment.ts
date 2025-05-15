@@ -248,10 +248,10 @@ interface EnvironmentInheritable {
 	 *
 	 * More details here https://developers.cloudflare.com/workers/platform/cron-triggers
 	 *
-	 * @default {crons:[]}
+	 * @default {crons: undefined}
 	 * @inheritable
 	 */
-	triggers: { crons: string[] };
+	triggers: { crons: string[] | undefined };
 
 	/**
 	 * Specifies the Usage Model for your Worker. There are two options -
