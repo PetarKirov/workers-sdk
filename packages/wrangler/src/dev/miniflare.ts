@@ -1027,7 +1027,7 @@ export async function buildMiniflareOptions(
 	internalObjects: CfDurableObject[];
 	entrypointNames: string[];
 }> {
-	if (config.crons.length > 0 && !config.testScheduled) {
+	if (config.crons?.length && !config.testScheduled) {
 		if (!didWarnMiniflareCronSupport) {
 			didWarnMiniflareCronSupport = true;
 			logger.warn(

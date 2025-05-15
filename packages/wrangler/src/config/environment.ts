@@ -280,10 +280,10 @@ interface EnvironmentInheritable {
 	 *
 	 * More details here https://developers.cloudflare.com/workers/platform/cron-triggers
 	 *
-	 * @default {crons:[]}
+	 * @default {crons: undefined}
 	 * @inheritable
 	 */
-	triggers: { crons: string[] };
+	triggers: { crons: string[] | undefined };
 
 	/**
 	 * Specify limits for runtime behavior.
