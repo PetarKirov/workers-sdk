@@ -28,6 +28,7 @@ const configure = async (ctx: C3Context) => {
 
 	await installPackages(packages, {
 		dev: true,
+		cwd: ctx.project.path,
 		startText: "Installing nitro module `nitro-cloudflare-dev`",
 		doneText: `${brandColor("installed")} ${dim(`via \`${npm} install\``)}`,
 	});
