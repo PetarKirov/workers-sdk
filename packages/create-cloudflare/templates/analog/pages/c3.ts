@@ -19,19 +19,19 @@ const generate = async (ctx: C3Context) => {
 };
 
 const configure = async (ctx: C3Context) => {
-	const packages = ["nx", "@nx/devkit"];
+	// const packages = ["nx", "@nx/devkit"];
 
-	await installPackages(packages, {
-		dev: true,
-		startText: `Installing additional dependencies: ${packages.join(", ")}`,
-	});
+	// await installPackages(packages, {
+	// 	dev: true,
+	// 	startText: `Installing additional dependencies: ${packages.join(", ")}`,
+	// });
 
-	await runCommand([npm, "install"], {
-		silent: true,
-		cwd: ctx.project.path,
-		startText: "Installing dependencies",
-		doneText: `${brandColor("installed")} ${dim(`via \`${npm} install\``)}`,
-	});
+	// await runCommand([npm, "install"], {
+	// 	silent: true,
+	// 	cwd: ctx.project.path,
+	// 	startText: "Installing dependencies",
+	// 	doneText: `${brandColor("installed")} ${dim(`via \`${npm} install\``)}`,
+	// });
 
 	updateViteConfig(ctx);
 };

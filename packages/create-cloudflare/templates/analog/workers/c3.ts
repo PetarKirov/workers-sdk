@@ -21,54 +21,28 @@ const generate = async (ctx: C3Context) => {
 };
 
 const configure = async (ctx: C3Context) => {
-	const packages = ["nitro-cloudflare-dev", "nitropack"];
+	// const packages = ["nitro-cloudflare-dev", "nitropack"];
 
 	// When using pnpm, explicitly add h3 package so the H3Event type declaration can be updated.
 	// Package managers other than pnpm will hoist the dependency, as will pnpm with `--shamefully-hoist`
-	if (pm === "pnpm") {
-		packages.push("h3");
-	}
+	// if (pm === "pnpm") {
+	// 	packages.push("h3");
+	// }
 
-	await installPackages(packages, {
-		dev: true,
-		startText: "Installing nitro module `nitro-cloudflare-dev`",
-		doneText: `${brandColor("installed")} ${dim(`via \`${npm} install\``)}`,
-	});
+	// await installPackages(packages, {
+	// 	dev: true,
+	// 	startText: "Installing nitro module `nitro-cloudflare-dev`",
+	// 	doneText: `${brandColor("installed")} ${dim(`via \`${npm} install\``)}`,
+	// });
 
-	console.log("[DEBUG] Installing dependencies...");
-	// ...?
-	await runCommand([npm, "install"], {
-		// silent: true,
-		cwd: ctx.project.path,
-		startText: "Installing dependencies",
-		doneText: `${brandColor("installed")} ${dim(`via \`${npm} install\``)}`,
-	});
-
-	console.log("[DEBUG] Dependencies installed...");
+	// await runCommand([npm, "install"], {
+	// 	// silent: true,
+	// 	cwd: ctx.project.path,
+	// 	startText: "Installing dependencies",
+	// 	doneText: `${brandColor("installed")} ${dim(`via \`${npm} install\``)}`,
+	// });
 
 	updateViteConfig();
-	updateEnvTypes(ctx);
-};
-
-const updateEnvTypes = (ctx: C3Context) => {
-	const filepath = "env.d.ts";
-
-	const s = spinner();
-	s.start(`Updating ${filepath}`);
-
-	let file = readFile(filepath);
-
-	let typesEntrypoint = `@cloudflare/workers-types`;
-	const latestEntrypoint = getLatestTypesEntrypoint(ctx);
-	if (latestEntrypoint) {
-		typesEntrypoint += `/${latestEntrypoint}`;
-	}
-
-	// Replace placeholder with actual types entrypoint
-	file = file.replace("WORKERS_TYPES_ENTRYPOINT", typesEntrypoint);
-	writeFile("env.d.ts", file);
-
-	s.stop(`${brandColor(`updated`)} ${dim(`\`${filepath}\``)}`);
 };
 
 const updateViteConfig = () => {
