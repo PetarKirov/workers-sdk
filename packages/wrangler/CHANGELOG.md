@@ -1,5 +1,27 @@
 # wrangler
 
+## 4.16.0
+
+### Minor Changes
+
+- [#9265](https://github.com/cloudflare/workers-sdk/pull/9265) [`16de0d5`](https://github.com/cloudflare/workers-sdk/commit/16de0d5227876a5bb83dbf3289d9b2a71719064f) Thanks [@edmundhung](https://github.com/edmundhung)! - docs: add documentation links to individual config properties in the JSON schema of the Wrangler config file
+
+### Patch Changes
+
+- [#9234](https://github.com/cloudflare/workers-sdk/pull/9234) [`2fe6219`](https://github.com/cloudflare/workers-sdk/commit/2fe62198d75522e037c093b4f162ec6aeabea4ee) Thanks [@emily-shen](https://github.com/emily-shen)! - fix: add no-op `props` to `ctx` in `getPlatformProxy` to fix type mismatch
+
+- [#9231](https://github.com/cloudflare/workers-sdk/pull/9231) [`02d40ed`](https://github.com/cloudflare/workers-sdk/commit/02d40ed3bbfc9cb4c2f95fb921efd7ec56f141a6) Thanks [@dario-piotrowicz](https://github.com/dario-piotrowicz)! - Wire up mixed-mode remote bindings for (single-worker) `wrangler dev`
+
+  Under the `--x-mixed-mode` flag, make sure that bindings configurations with `remote: true` actually generate bindings to remote resources during a single-worker `wrangler dev` session, currently the bindings included in this are: services, kv_namespaces, r2_buckets, d1_databases, queues and workflows.
+
+  Also include the ai binding since the bindings is already remote by default anyways.
+
+- [#9245](https://github.com/cloudflare/workers-sdk/pull/9245) [`b87b472`](https://github.com/cloudflare/workers-sdk/commit/b87b472a1a06419c1ded539fa478fa69a688efba) Thanks [@penalosa](https://github.com/penalosa)! - Support Mixed Mode Dispatch Namespaces
+
+- Updated dependencies [[`b87b472`](https://github.com/cloudflare/workers-sdk/commit/b87b472a1a06419c1ded539fa478fa69a688efba)]:
+  - miniflare@4.20250508.3
+  - @cloudflare/unenv-preset@2.3.2
+
 ## 4.15.2
 
 ### Patch Changes
